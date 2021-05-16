@@ -1,6 +1,7 @@
 import os
 import sys
 import random
+import argparse
 from datetime import datetime
 import numpy as np
 
@@ -18,12 +19,18 @@ from models.efficient_decoder_expC import BartEfficientDecoder
 from utils import get_boundary_matrix
 from utils import parse_config
 
-def validate(config_path, model_path, cache_dir, start_id, end_id):
+def validate(args):
+    config_path = args['config_path']
+    model_path  = args['load']
+    cache_dir   = args['cache_dir']
+    start_id    = args['start_id']
+    end_id      = args['end_id']
+
     # Load Config
     config = parse_config("config", config_path)
 
     # uses GPU in training or not
-    if torch.cuda.is_available() and config['use_gpu']: torch_device = 'cuda'
+    if torch.cuda.is_available() and args['use_gpu']: torch_device = 'cuda'
     else: torch_device = 'cpu'
 
     num_heads      = config['num_heads']
@@ -75,6 +82,7 @@ def validate(config_path, model_path, cache_dir, start_id, end_id):
     assert batch_size == 1, "batch_size > 1 not supported"
 
     ids = [_i for _i in range(start_id, end_id)]
+    if args['random_order']: random.shuffle(ids)
     bart.eval()
 
     for id in ids:
@@ -105,7 +113,7 @@ def validate(config_path, model_path, cache_dir, start_id, end_id):
 
         # find boundaries
         _input_ids = input_ids[0].cpu().numpy()
-        boundary   = get_boundary_matrix(_input_ids, num_heads*batch_size, eos_id)
+        boundary   = get_boundary_matrix(_input_ids, num_heads*batch_size, eos_id, torch_device)
 
         bart_outputs = bart(input_ids=input_ids, decoder_input_ids=target_ids, boundary=boundary)
         lm_logits  = bart_outputs[0]
@@ -133,13 +141,22 @@ def validate(config_path, model_path, cache_dir, start_id, end_id):
             f.write("{:.8f}".format(loss_kl))
         print("wrote:", outpath)
 
+def get_decode_arguments(parser):
+    '''Arguments for decoding'''
+    parser.register("type", "bool", lambda v: v.lower() == "true")
+    # file paths
+    parser.add_argument('--load',       type=str, required=True)  # path to load model
+    parser.add_argument('--config_path',type=str, required=True)  # path to load model
+    parser.add_argument('--cache_dir',  type=str, required=True)
+    parser.add_argument('--start_id',   type=int, required=True)
+    parser.add_argument('--end_id',     type=int, required=True)
+    parser.add_argument('--random_order', type="bool", nargs="?", const=True, default=False)
+    parser.add_argument('--use_gpu',    type="bool", nargs="?", const=True, default=False)
+    return parser
+
 if __name__ == "__main__":
-    if(len(sys.argv) == 6):
-        config_path = sys.argv[1]
-        model_path  = sys.argv[2]
-        cache_dir   = sys.argv[3]
-        start_id    = int(sys.argv[4])
-        end_id      = int(sys.argv[5])
-        validate(config_path, model_path, cache_dir, start_id, end_id)
-    else:
-        print("Usage: python validate_kl.py config_path model_path cache_dir start_id end_id")
+    # get configurations from the terminal
+    parser = argparse.ArgumentParser()
+    parser = get_decode_arguments(parser)
+    args = vars(parser.parse_args())
+    validate(args)

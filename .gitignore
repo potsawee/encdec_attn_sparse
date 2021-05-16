@@ -1,2 +1,4 @@
-lib
+lib/
+temp/
+garbage/
 __pycache__/
