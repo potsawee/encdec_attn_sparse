@@ -1,0 +1,23 @@
+[config]
+bart_weights   = facebook/bart-large-xsum
+bart_tokenizer = facebook/bart-large
+model_name     = KL_XSUM_v0
+save_dir       = lib/trained_models
+task           = XSUM
+num_encoder_sent_nn_layers = 2
+optimizer      = adam
+max_target_len = 200
+lr0            = 0.002
+warmup         = 20000
+temperature    = 0.5
+eps            = 1e-8
+batch_size     = 1
+gradient_accum = 2
+valid_step     = 20000
+total_step     = 20000000
+early_stop     = 3
+random_seed    = 2728
+use_gpu        = True
+num_heads      = 16
+num_layers     = 12
+eos_id         = 4

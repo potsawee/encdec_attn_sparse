@@ -1,0 +1,28 @@
+[config]
+bart_weights   = facebook/bart-large-cnn
+bart_tokenizer = facebook/bart-large
+model_name     = integrated_CNNDM_v0
+save_dir       = lib/trained_models
+task           = CNNDM
+num_encoder_sent_nn_layers = 2
+optimizer      = adam
+max_target_len = 200
+lr0            = 0.002
+warmup         = 20000
+temperature    = 0.5
+eps            = 1e-8
+batch_size     = 1
+gradient_accum = 2
+valid_step     = 20000
+total_step     = 20000000
+early_stop     = 3
+random_seed    = 3434
+use_gpu        = True
+num_heads      = 16
+num_layers     = 12
+eos_id         = 4
+
+load_model_path = lib/trained_models/KL_CNNDM_v0-step0.pt
+lambda1        = 0.2
+r_train        = 5
+training_ref   = approx
