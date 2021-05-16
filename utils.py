@@ -7,7 +7,6 @@ def get_boundary_matrix(input_ids: np.ndarray,
                         num_heads: int = 16,
                         eos_id: int = 4,
                         torch_device: str = 'cuda') -> torch.Tensor:
-    # EOS_ID      = 4 # '.'
     eos_id2     = 2  #'</s>'
     input_w_len = input_ids.shape[0]
     input_s_len = int(np.array((input_ids == eos_id), dtype=np.float32).sum(axis=-1))
@@ -35,6 +34,37 @@ def get_boundary_matrix(input_ids: np.ndarray,
     boundary = torch.tensor(boundary, device=torch_device, dtype=torch.float32)
     return {'boundary': boundary, 'sentid2wordid': sentid2wordid}
 
+def get_boundary_matrix_beamsearch(input_ids: np.ndarray,
+                        num_heads: int = 16,
+                        num_beams: int = 1,
+                        eos_id: int = 4,
+                        torch_device: str = 'cuda') -> torch.Tensor:
+    eos_id2     = 2  #'</s>'
+    input_w_len = input_ids.shape[0]
+    input_s_len = int(np.array((input_ids == eos_id), dtype=np.float32).sum(axis=-1))
+    input_s_len += int(np.array((input_ids == eos_id2), dtype=np.float32).sum(axis=-1))
+    boundary = np.zeros((input_w_len, input_s_len), dtype=np.float32)
+    sent_counter = 0
+    word_counter = 0
+    sentid2wordid = []
+    wordid = []
+    for j in range(input_w_len):
+        if input_ids[j] == eos_id or input_ids[j] == eos_id2:
+            num_word = word_counter + 1
+            boundary[j-word_counter:j+1, sent_counter] = 1
+
+            wordid.append(j)
+            sentid2wordid.append(wordid)
+            wordid = []
+
+            sent_counter += 1
+            word_counter = 0
+        else:
+            wordid.append(j)
+            word_counter += 1
+    boundary = np.tile(boundary, (num_heads*num_beams, 1, 1))
+    boundary = torch.tensor(boundary, device=torch_device, dtype=torch.float32)
+    return {'boundary': boundary, 'sentid2wordid': sentid2wordid}
 
 def shifted_target_left(target_ids):
     # shifted LEFT
