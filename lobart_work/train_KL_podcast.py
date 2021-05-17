@@ -11,7 +11,7 @@ import torch.optim as optim
 
 from utils import get_boundary_matrix, shifted_target_left, adjust_lr
 from utils import parse_config, print_config
-from data.loader import BartBatcher, load_podcast_cheatv3_4110_filtered_data
+from data.loader import BartBatcher, load_podcast_4110_filtered_data
 from data.processor import PodcastEpisode
 from transformers import BartTokenizer
 from models.efficient_lobart_expC import BartEfficientLoBART
@@ -81,11 +81,11 @@ def run_training(config_path):
         bart.model.decoder.layers[i].output_attentions = True
 
     # Data
-    podcasts = load_podcast_cheatv3_4110_filtered_data(sets=-1) # -1 means set0,..,set9 (excluding 10)
+    podcasts = load_podcast_4110_filtered_data(sets=-1) # -1 means set0,..,set9 (excluding 10)
     batcher = BartBatcher(bart_tokenizer, bart.model.config, podcasts, torch_device)
 
     # Validation
-    val_podcasts = load_podcast_cheatv3_4110_filtered_data(sets=[10])
+    val_podcasts = load_podcast_4110_filtered_data(sets=[10])
     val_batcher = BartBatcher(bart_tokenizer, bart.model.config, val_podcasts, torch_device)
 
     optimizer = optim.Adam(filter(lambda p: p.requires_grad, bart.parameters()), lr=0.001,betas=(0.9,0.999),eps=1e-08,weight_decay=0)
@@ -146,7 +146,7 @@ def run_training(config_path):
             adjust_lr(optimizer, training_step, lr0, warmup)
             optimizer.step()
             optimizer.zero_grad()
-            
+
         if training_step % 1 == 0:
             print("[{}] step {}/{}: loss = {:.8f}".format(str(datetime.now()), training_step, total_step, loss))
             sys.stdout.flush()

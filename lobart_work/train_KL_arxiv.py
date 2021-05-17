@@ -82,11 +82,11 @@ def run_training(config_path):
 
     # Data
     max_sum_len = 400
-    train_data = load_arxiv("/home/alta/summary/pm574/arxiv_sum0/lib/data/cheat4110/arxiv_train.pk.bin")
+    train_data = load_arxiv("lib/data/4110/arxiv_train.pk.bin")
     batcher = BartBatcher(bart_tokenizer, bart.model.config, train_data, max_sum_len, torch_device)
     # Validation
-    val_data = load_arxiv("/home/alta/summary/pm574/arxiv_sum0/lib/data/cheat4110/arxiv_val.pk.bin")
-    val_batcher = BartBatcher(bart_tokenizer, bart.model.config, val_data, max_sum_len, torch_device)
+    # val_data = load_arxiv("lib/data/4110/arxiv_val.pk.bin")
+    # val_batcher = BartBatcher(bart_tokenizer, bart.model.config, val_data, max_sum_len, torch_device)
 
     optimizer = optim.Adam(filter(lambda p: p.requires_grad, bart.parameters()), lr=0.001,betas=(0.9,0.999),eps=1e-08,weight_decay=0)
     optimizer.zero_grad()

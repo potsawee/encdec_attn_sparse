@@ -1,5 +1,5 @@
 [config]
-lobart_base_path = /home/alta/summary/pm574/arxiv_sum0/lib/trained_models/arxivlong-4096-1024-cheat-JAN10-v1-220k_260k.pt
+lobart_base_path = lib/trained_models/arxivlong-4096-1024-JAN10-v1-220k_260k.pt
 bart_tokenizer = facebook/bart-large
 model_name     = KL_arxiv_v0
 save_dir       = lib/trained_models

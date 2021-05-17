@@ -1,5 +1,5 @@
 [config]
-lobart_base_path = /home/alta/summary/pm574/podcast_sum0/lib/trained_models2/bartlongformer-4096-1024-cheatv3-JAN14-v1-step60000.pt
+lobart_base_path = lib/trained_models/lobart-4096-1024-JAN14-v1-step60000.pt
 bart_tokenizer = facebook/bart-large
 model_name     = KL_podcast_v0
 save_dir       = lib/trained_models

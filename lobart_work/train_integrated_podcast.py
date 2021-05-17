@@ -11,7 +11,7 @@ import torch.optim as optim
 
 from utils import get_boundary_matrix, shifted_target_left, adjust_lr
 from utils import parse_config, print_config
-from data.loader import BartBatcher, load_podcast_cheatv3_4110_filtered_data
+from data.loader import BartBatcher, load_podcast_4110_filtered_data
 from data.processor import PodcastEpisode
 from transformers import BartTokenizer
 from models.efficient_lobart_expC_integrated import BartEfficientLoBART
@@ -80,7 +80,7 @@ def run_training(config_path):
         bart.model.decoder.layers[i].output_attentions = True
 
     # Data
-    podcasts = load_podcast_cheatv3_4110_filtered_data(sets=-1) # -1 means set0,..,set9 (excluding 10)
+    podcasts = load_podcast_4110_filtered_data(sets=-1) # -1 means set0,..,set9 (excluding 10)
     batcher = BartBatcher(bart_tokenizer, bart.model.config, podcasts, torch_device)
 
     optimizer = optim.Adam(filter(lambda p: p.requires_grad, bart.parameters()), lr=0.001,betas=(0.9,0.999),eps=1e-08,weight_decay=0)
